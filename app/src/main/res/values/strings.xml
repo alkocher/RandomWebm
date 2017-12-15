@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Random Webm</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="random">Random</string>
+    <string name="mm_dd_yyyy">Mm-Dd-yyyy</string>
+    <string name="views">views</string>
+    <string name="uploaded">Uploaded</string>
+    <string name="nulll">0</string>
+    <string name="tags">Tags:</string>
+    <string name="exit">Press once again to exit</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="pages">Pages</string>
+    <string name="webms">Webms</string>
+    <string name="communicate">Communicate</string>
+    <string name="send">Send</string>
+    <string name="share">Share</string>
+</resources>

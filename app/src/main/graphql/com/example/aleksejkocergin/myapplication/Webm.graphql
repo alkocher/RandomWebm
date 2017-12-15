@@ -1,0 +1,14 @@
+query Webm ($id: ID!){
+  getWebm (id: $id){
+            id,
+            source,
+            views,
+            url,
+            likes,
+            dislikes,
+            createdAt,
+    tags {
+            name
+    }
+  }
+}

@@ -1,0 +1,13 @@
+query WebmList ($pageSize: Int!, $order: Order!, $page: Int!, $tagName: String!) {
+    getWebmList (order: $order, pageSize: $pageSize, page: $page, tagName: $tagName) {
+        id,
+        source,
+        views,
+        likes,
+        dislikes,
+        createdAt,
+        previewUrl
+        url,
+        tags {name}
+    }
+}

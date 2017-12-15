@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto" >
+
+    <ImageButton android:id="@id/exo_play"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center"
+        style="@style/ExoMediaButton.Play"
+        android:contentDescription="Play" />
+
+    <ImageButton android:id="@id/exo_pause"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center"
+        style="@style/ExoMediaButton.Pause"
+        android:contentDescription="Pause" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:background="@drawable/background_gradient">
+
+            <TextView android:id="@+id/exo_position"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="00:00"
+                android:textColor="#fff"
+                android:paddingStart="4dp"
+                android:paddingEnd="0dp"
+                android:paddingBottom="4dp"
+                android:layout_gravity="bottom"
+                android:layout_weight="0" />
+
+            <com.google.android.exoplayer2.ui.AspectRatioFrameLayout
+                android:id="@+id/exo_content_frame"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <com.google.android.exoplayer2.ui.DefaultTimeBar
+                android:id="@+id/exo_progress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                app:ad_marker_color="@color/colorAccent" />
+
+            <TextView
+                android:id="@+id/exo_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="00:00"
+                android:textColor="#fff"
+                android:paddingRight="4dp"
+                android:paddingBottom="4dp"
+                android:layout_gravity="bottom"
+                android:layout_weight="0" />
+
+        </LinearLayout>
+                <!--<FrameLayout
+                    android:id="@+id/exo_fullscreen_button"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="bottom">
+
+                <ImageView
+                    android:id="@+id/exo_fullscreen_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_fullscreen"
+                    android:layout_gravity="center"/>
+                </FrameLayout>-->
+        </LinearLayout>
+</FrameLayout>
