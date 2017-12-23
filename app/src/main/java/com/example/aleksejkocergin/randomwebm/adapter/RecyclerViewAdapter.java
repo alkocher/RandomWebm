@@ -9,9 +9,9 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.aleksejkocergin.myapplication.WebmListQuery;
 import com.example.aleksejkocergin.randomwebm.R;
-import com.squareup.picasso.Picasso;
 
 import java.util.Collections;
 import java.util.List;
@@ -58,7 +58,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             myHolder.numViews.setText(String.valueOf(webmList.get(position).views()));
             myHolder.likeCount.setText(String.valueOf(webmList.get(position).likes()));
             myHolder.dislikeCount.setText(String.valueOf(webmList.get(position).dislikes()));
-            Picasso.with(context).load(webmList.get(position).previewUrl()).into(myHolder.imageView);
+            Glide.with(context).load(webmList.get(position).previewUrl()).into(myHolder.imageView);
         } else if (holder instanceof LoadingViewHolder) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressBar.setIndeterminate(true);

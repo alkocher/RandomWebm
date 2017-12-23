@@ -63,7 +63,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
-import me.gujun.android.taggroup.TagGroup;
 
 public class RandomFragment extends Fragment implements View.OnClickListener, ExoPlayer.EventListener,
         PlaybackControlView.VisibilityListener {
