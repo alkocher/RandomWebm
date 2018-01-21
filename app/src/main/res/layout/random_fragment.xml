@@ -42,6 +42,7 @@
             android:orientation="horizontal"
             android:visibility="visible" >
         </LinearLayout>
+
     </LinearLayout>
 
     <LinearLayout
@@ -49,23 +50,13 @@
         android:layout_height="wrap_content">
 
         <android.support.v7.widget.RecyclerView
+            app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+            android:orientation="horizontal"
             android:id="@+id/tags_recycler_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
         </android.support.v7.widget.RecyclerView>
-
-        <!--<me.gujun.android.taggroup.TagGroup
-            android:id="@+id/tagList"
-            style="@style/TagGroup"
-            app:atg_backgroundColor="@color/colorDivider"
-            app:atg_borderColor="@color/colorDivider"
-            app:atg_textColor="#000"
-            android:layout_marginTop="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_weight="1"
-            android:layout_width="0dp" />-->
 
     </LinearLayout>
 
@@ -107,7 +98,16 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="end">
+        android:gravity="center_horizontal">
+
+        <ImageButton
+            android:id="@+id/thumb_up"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginEnd="8dp"
+            android:contentDescription="Thumb up"
+            android:src="@drawable/ic_thumb_up_24dp" />
 
         <TextView
             android:id="@+id/like_count"
@@ -115,34 +115,7 @@
             android:layout_height="wrap_content"
             android:text="0"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp" />
-
-        <ImageView
-            android:id="@+id/thumb_up"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_thumb_up_24dp"
-            android:layout_marginBottom="8dp"
-            android:contentDescription="Thumb up" />
-
-        <TextView
-            android:id="@+id/dislike_count"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="0"
-            android:layout_marginBottom="8dp"
-            android:layout_marginStart="8dp" />
-
-        <ImageView
-            android:id="@+id/thumb_down"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_thumb_down_24dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:layout_marginStart="8dp"
-            android:contentDescription="Thumb down" />
-    </LinearLayout>
+            android:layout_gravity="center"/>
 
         <Button
             android:id="@+id/next_button"
@@ -153,4 +126,24 @@
             android:layout_gravity="center"
             android:backgroundTint="@color/colorAccent"
             tools:targetApi="lollipop" />
+
+        <TextView
+            android:id="@+id/dislike_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:layout_marginStart="8dp"
+            android:layout_gravity="center"/>
+
+        <ImageView
+            android:id="@+id/thumb_down"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_thumb_down_24dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:contentDescription="Thumb down"
+            android:layout_gravity="center"/>
+
+    </LinearLayout>
 </LinearLayout>

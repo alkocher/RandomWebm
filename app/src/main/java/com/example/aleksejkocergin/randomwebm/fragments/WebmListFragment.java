@@ -23,7 +23,7 @@ import com.example.aleksejkocergin.myapplication.type.Order;
 import com.example.aleksejkocergin.randomwebm.activity.PlayerActivity;
 import com.example.aleksejkocergin.randomwebm.R;
 import com.example.aleksejkocergin.randomwebm.RandomWebmApplication;
-import com.example.aleksejkocergin.randomwebm.adapter.RecyclerViewAdapter;
+import com.example.aleksejkocergin.randomwebm.adapter.WebmListAdapter;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,16 +35,16 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
-public class ListOrderFragment extends Fragment {
+public class WebmListFragment extends Fragment {
 
-    private static final String TAG = ListOrderFragment.class.getSimpleName();
+    private static final String TAG = WebmListFragment.class.getSimpleName();
     public static final int PAGE_SIZE = 15;
 
-    RandomWebmApplication application;
-    RecyclerViewAdapter mAdapter;
-    Handler uiHandler = new Handler(Looper.getMainLooper());
-    ApolloCall<WebmListQuery.Data> webmCall;
-    LinearLayoutManager mLayoutManager;
+    private RandomWebmApplication application;
+    private WebmListAdapter mAdapter;
+    private Handler uiHandler = new Handler(Looper.getMainLooper());
+    private ApolloCall<WebmListQuery.Data> webmCall;
+    private LinearLayoutManager mLayoutManager;
 
     @BindView(R.id.recycler_view) RecyclerView mRecyclerView;
     @BindView(R.id.swipe_container) SwipeRefreshLayout swipeContainer;
@@ -63,7 +63,7 @@ public class ListOrderFragment extends Fragment {
         order = getActivity().getIntent().getStringExtra("order");
         tagName = getActivity().getIntent().getStringExtra("tagName");
         mLayoutManager = new LinearLayoutManager(getContext());
-        mAdapter = new RecyclerViewAdapter(getContext(), new ArrayList<WebmListQuery.GetWebmList>());
+        mAdapter = new WebmListAdapter(getContext(), new ArrayList<WebmListQuery.GetWebmList>());
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -84,7 +84,7 @@ public class ListOrderFragment extends Fragment {
                 }
             }
         });
-        mAdapter.SetOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
+        mAdapter.SetOnItemClickListener(new WebmListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position, String id) {
                 Intent intent = new Intent(getActivity(), PlayerActivity.class);
@@ -136,7 +136,6 @@ public class ListOrderFragment extends Fragment {
     private List<WebmListQuery.GetWebmList> responseWebmList(Response<WebmListQuery.Data> response) {
         List<WebmListQuery.GetWebmList> webmList = new ArrayList<>();
         final WebmListQuery.Data responseData = response.data();
-
         if (responseData == null) {
             return Collections.emptyList();
         }

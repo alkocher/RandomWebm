@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:opacity="opaque">
+    <item android:drawable="@color/colorDivider" />
+    <item>
+        <bitmap android:src="@drawable/splashscreen"
+            android:autoMirrored="true" />
+    </item>
+
+
+</layer-list>

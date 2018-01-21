@@ -18,4 +18,5 @@
     <string name="communicate">Communicate</string>
     <string name="send">Send</string>
     <string name="share">Share</string>
+    <string name="search_hint">Search for tags</string>
 </resources>

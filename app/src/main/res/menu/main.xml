@@ -6,9 +6,9 @@
         android:id="@+id/action_search"
         android:orderInCategory="100"
         android:title="Search"
-        app:showAsAction="ifRoom"
+        app:showAsAction="collapseActionView|ifRoom"
         android:icon="@drawable/ic_search"
-        />
+        app:actionViewClass="android.support.v7.widget.SearchView" />
 
     <item
         android:id="@+id/action_settings"

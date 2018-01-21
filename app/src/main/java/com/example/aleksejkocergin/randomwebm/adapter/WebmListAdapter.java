@@ -19,7 +19,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class WebmListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final int VIEW_TYPE_ITEM = 0;
     private final int VIEW_TYPE_FOOTER = 1;
@@ -30,7 +30,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private List<WebmListQuery.GetWebmList> webmList = Collections.emptyList();
 
     // Constructor
-    public RecyclerViewAdapter(Context context, List<WebmListQuery.GetWebmList> webmList) {
+    public WebmListAdapter(Context context, List<WebmListQuery.GetWebmList> webmList) {
         this.context = context;
         this.webmList = webmList;
     }

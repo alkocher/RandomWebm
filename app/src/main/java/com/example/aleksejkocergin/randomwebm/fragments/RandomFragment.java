@@ -4,9 +4,7 @@ import android.content.res.Configuration;
 import android.support.v4.app.Fragment;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -23,12 +21,10 @@ import android.widget.Toast;
 import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.rx2.Rx2Apollo;
-import com.example.aleksejkocergin.myapplication.WebmListQuery;
 import com.example.aleksejkocergin.myapplication.WebmQuery;
 import com.example.aleksejkocergin.randomwebm.R;
 import com.example.aleksejkocergin.randomwebm.RandomWebmApplication;
-import com.example.aleksejkocergin.randomwebm.adapter.RecyclerViewAdapter;
-import com.example.aleksejkocergin.randomwebm.adapter.TagsRecyclerViewAdapter;
+import com.example.aleksejkocergin.randomwebm.adapter.TagsAdapter;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -71,11 +67,11 @@ public class RandomFragment extends Fragment implements View.OnClickListener, Ex
     private RandomWebmApplication application;
     private CompositeDisposable disposables = new CompositeDisposable();
 
-    DefaultBandwidthMeter defaultBandwidthMeter;
+    private DefaultBandwidthMeter defaultBandwidthMeter;
     private DataSource.Factory mediaDataSourceFactory;
     private SimpleExoPlayer player;
     private ExtractorsFactory extractorsFactory;
-    private TagsRecyclerViewAdapter tagsRecyclerViewAdapter;
+    private TagsAdapter tagsAdapter;
     private LinearLayoutManager mLayoutManager;
 
     @BindView(R.id.loading_bar) ProgressBar progressBar;
@@ -194,7 +190,7 @@ public class RandomFragment extends Fragment implements View.OnClickListener, Ex
         }
     }
 
-    private void setWebmData(WebmQuery.Data data) {
+    public void setWebmData(WebmQuery.Data data) {
         final WebmQuery.GetWebm getWebm = data.getWebm();
         if (getWebm != null) {
             createdAt.setText(getWebm.createdAt());
@@ -204,16 +200,15 @@ public class RandomFragment extends Fragment implements View.OnClickListener, Ex
             for (int i = 0; i < getWebm.tags().size(); ++i) {
                 tags.add(getWebm.tags().get(i).name());
             }
-            tagsRecyclerViewAdapter = new TagsRecyclerViewAdapter(getContext(), tags);
-            tagsRecyclerView.setAdapter(tagsRecyclerViewAdapter);
-            tagsRecyclerViewAdapter.SetOnItemClickListener(new TagsRecyclerViewAdapter.OnItemClickListener() {
+            tagsAdapter = new TagsAdapter(getContext(), tags);
+            tagsRecyclerView.setAdapter(tagsAdapter);
+            tagsAdapter.SetOnItemClickListener(new TagsAdapter.OnItemClickListener() {
                 @Override
                 public void onItemClick(View view, int position) {
-                    Toast.makeText(getContext(), "Выбрано " + tagsRecyclerViewAdapter.getItem(position), Toast.LENGTH_SHORT).show();
-                    tagName = tagsRecyclerViewAdapter.getItem(position).toLowerCase();
+                    tagName = tagsAdapter.getItem(position).toLowerCase();
                     getActivity().getIntent().putExtra("tagName", tagName);
                     getActivity().getIntent().putExtra("order", order);
-                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.container, new ListOrderFragment()).commit();
+                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.container, new WebmListFragment()).commit();
                 }
             });
 
@@ -284,14 +279,14 @@ public class RandomFragment extends Fragment implements View.OnClickListener, Ex
         simpleExoPlayerView.setLayoutParams(params);
     }
 
-    private void hidePortraitSystemUI() {
+    /*private void hidePortraitSystemUI() {
         final View decorView = getActivity().getWindow().getDecorView();
         decorView.setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                         | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
                         | View.SYSTEM_UI_FLAG_IMMERSIVE);
-    }
+    }*/
 
     private void showPortraitSystemUI() {
         final View decorView = getActivity().getWindow().getDecorView();

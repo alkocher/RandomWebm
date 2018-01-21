@@ -14,13 +14,13 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class TagsRecyclerViewAdapter extends RecyclerView.Adapter<TagsRecyclerViewAdapter.ViewHolder> {
+public class TagsAdapter extends RecyclerView.Adapter<TagsAdapter.ViewHolder> {
 
     private List<String> tagsList = Collections.emptyList();
     private LayoutInflater mInflater;
     private OnItemClickListener mClickListener;
 
-    public TagsRecyclerViewAdapter(Context context, List<String> tagsList) {
+    public TagsAdapter(Context context, List<String> tagsList) {
         this.mInflater = LayoutInflater.from(context);
         this.tagsList = tagsList;
     }
@@ -46,7 +46,7 @@ public class TagsRecyclerViewAdapter extends RecyclerView.Adapter<TagsRecyclerVi
 
         @BindView(R.id.tags_text_view) TextView tags;
 
-        public ViewHolder(View itemView) {
+        private ViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
             itemView.setOnClickListener(this);
