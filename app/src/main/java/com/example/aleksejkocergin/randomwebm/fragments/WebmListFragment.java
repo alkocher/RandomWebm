@@ -2,89 +2,108 @@ package com.example.aleksejkocergin.randomwebm.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.apollographql.apollo.ApolloCall;
-import com.apollographql.apollo.ApolloCallback;
 import com.apollographql.apollo.api.Response;
-import com.apollographql.apollo.exception.ApolloException;
+import com.apollographql.apollo.rx2.Rx2Apollo;
 import com.example.aleksejkocergin.myapplication.WebmListQuery;
+import com.example.aleksejkocergin.myapplication.WebmListQuery.GetWebmList;
 import com.example.aleksejkocergin.myapplication.type.Order;
 import com.example.aleksejkocergin.randomwebm.activity.PlayerActivity;
 import com.example.aleksejkocergin.randomwebm.R;
 import com.example.aleksejkocergin.randomwebm.RandomWebmApplication;
-import com.example.aleksejkocergin.randomwebm.adapter.WebmListAdapter;
+import com.example.aleksejkocergin.randomwebm.adapter.WebmRecyclerAdapter;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
-import javax.annotation.Nonnull;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
 
 
 public class WebmListFragment extends Fragment {
 
     private static final String TAG = WebmListFragment.class.getSimpleName();
-    public static final int PAGE_SIZE = 15;
+    public static final int PAGE_SIZE = 10;
+    private String order = "";
+    private String tagName = "";
+    private int currentPage = 0;
 
+    private WebmRecyclerAdapter webmAdapter;
+    boolean userScrolled = false;
+    boolean isLastPage = false;
     private RandomWebmApplication application;
-    private WebmListAdapter mAdapter;
-    private Handler uiHandler = new Handler(Looper.getMainLooper());
-    private ApolloCall<WebmListQuery.Data> webmCall;
+    private final CompositeDisposable disposables = new CompositeDisposable();
     private LinearLayoutManager mLayoutManager;
 
     @BindView(R.id.recycler_view) RecyclerView mRecyclerView;
     @BindView(R.id.swipe_container) SwipeRefreshLayout swipeContainer;
+    @BindView(R.id.bottom_progress) RelativeLayout bottomLayout;
+    @BindView(R.id.error_no_results) LinearLayout errorNoResults;
+    @BindView(R.id.error_check_connection) LinearLayout errorCheckConnection;
 
-    private String order = "";
-    private String tagName = "";
-    private boolean isLoading = false;
-    private boolean isLastPage = false;
-    private int currentPage = 1;
+    public static WebmListFragment newInstance(String order, String tagName) {
+        WebmListFragment webmListFragment = new WebmListFragment();
+        Bundle args = new Bundle();
+        args.putString("order", order);
+        args.putString("tagName", tagName);
+        webmListFragment.setArguments(args);
+        return webmListFragment;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_list, container, false);
         ButterKnife.bind(this, v);
         application = (RandomWebmApplication) getActivity().getApplication();
-        order = getActivity().getIntent().getStringExtra("order");
-        tagName = getActivity().getIntent().getStringExtra("tagName");
-        mLayoutManager = new LinearLayoutManager(getContext());
-        mAdapter = new WebmListAdapter(getContext(), new ArrayList<WebmListQuery.GetWebmList>());
-        mRecyclerView.setAdapter(mAdapter);
+        order = getArguments().getString("order");
+        tagName = getArguments().getString("tagName");
+        mLayoutManager = new LinearLayoutManager(getActivity());
+
+        webmAdapter = new WebmRecyclerAdapter(getActivity(), new ArrayList<GetWebmList>());
+        mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        mRecyclerView.setAdapter(webmAdapter);
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+                    userScrolled = true;
+                }
+            }
+
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 int visibleItemCount = mLayoutManager.getChildCount();
                 int totalItemCount = mLayoutManager.getItemCount();
-                int firstVisibleItemPosition = mLayoutManager.findFirstVisibleItemPosition();
-
-                if (!isLoading && !isLastPage) {
-                    if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
-                            && firstVisibleItemPosition >= 0 && totalItemCount >= PAGE_SIZE) {
-                        mAdapter.showFooter();
-                        getNextPage();
+                int pastVisibleItems = mLayoutManager.findFirstVisibleItemPosition();
+                if (!isLastPage) {
+                    if (userScrolled && (visibleItemCount + pastVisibleItems) == totalItemCount - 1) {
+                        userScrolled = false;
+                        fetchWebmList();
                     }
                 }
             }
         });
-        mAdapter.SetOnItemClickListener(new WebmListAdapter.OnItemClickListener() {
+
+        webmAdapter.SetOnItemClickListener(new WebmRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position, String id) {
                 Intent intent = new Intent(getActivity(), PlayerActivity.class);
@@ -92,19 +111,19 @@ public class WebmListFragment extends Fragment {
                 startActivity(intent);
             }
         });
+
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                mAdapter.hideFooter();
-                firstLoadItems();
+                fetchWebmList();
             }
         });
+
         swipeContainer.setColorSchemeResources(
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
-
-        firstLoadItems();
+        fetchWebmList();
         return v;
     }
 
@@ -114,65 +133,49 @@ public class WebmListFragment extends Fragment {
         super.onPause();
     }
 
-    private ApolloCall.Callback<WebmListQuery.Data> fetchDataCallback = new ApolloCallback<>(new ApolloCall.Callback<WebmListQuery.Data>(){
-        @Override
-        public void onResponse(@Nonnull Response<WebmListQuery.Data> response) {
-            if (responseWebmList(response).size() == 0) {
-                isLastPage = true;
-                mAdapter.hideFooter();
-                mAdapter.notifyDataSetChanged();
-            }
-            mAdapter.addWebms(responseWebmList(response));
-            isLoading = false;
-            swipeContainer.setRefreshing(false);
-        }
-        @Override
-        public void onFailure(@Nonnull ApolloException e) {
-            Log.e(TAG, e.getMessage(), e);
-        }
-    }, uiHandler);
-
-
-    private List<WebmListQuery.GetWebmList> responseWebmList(Response<WebmListQuery.Data> response) {
-        List<WebmListQuery.GetWebmList> webmList = new ArrayList<>();
-        final WebmListQuery.Data responseData = response.data();
-        if (responseData == null) {
-            return Collections.emptyList();
-        }
-        final List<WebmListQuery.GetWebmList> webms = responseData.getWebmList();
-        if (webms != null) {
-            if (webms.size() > 0) {
-                webmList.addAll(webms);
-            }
-        }
-        return webmList;
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        disposables.dispose();
     }
 
-    private void firstLoadItems() {
-        currentPage = 1;
-        mAdapter.clear();
-        final WebmListQuery webmListQuery = WebmListQuery.builder()
-                .page(currentPage)
-                .pageSize(PAGE_SIZE)
-                .order(Order.valueOf(order))
-                .tagName(tagName)
-                .build();
-        webmCall = application.apolloClient()
-                .query(webmListQuery);
-        webmCall.enqueue(fetchDataCallback);
+    private void setWebmData(WebmListQuery.Data data) {
+        if (data != null) {
+            webmAdapter.addWebms(data.getWebmList());
+        }
+        if (mLayoutManager.getItemCount() == 0){
+            errorNoResults.setVisibility(View.VISIBLE);
+        }
     }
 
-    private void getNextPage() {
-        isLoading = true;
-        currentPage += 1;
-        final WebmListQuery webmListQuery = WebmListQuery.builder()
-                .page(currentPage)
-                .pageSize(PAGE_SIZE)
-                .order(Order.valueOf(order))
-                .tagName(tagName)
-                .build();
-        webmCall = application.apolloClient()
-                .query(webmListQuery);
-        webmCall.enqueue(fetchDataCallback);
+    private void fetchWebmList() {
+        errorNoResults.setVisibility(View.GONE);
+        bottomLayout.setVisibility(View.VISIBLE);
+        ApolloCall<WebmListQuery.Data> webmListQuery = application.apolloClient()
+                .query(new WebmListQuery(PAGE_SIZE, Order.valueOf(order), ++currentPage, tagName));
+
+        disposables.add(Rx2Apollo.from(webmListQuery)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeWith(new DisposableObserver<Response<WebmListQuery.Data>>() {
+                @Override
+                public void onNext(Response<WebmListQuery.Data> dataResponse) {
+                    setWebmData(dataResponse.data());
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    bottomLayout.setVisibility(View.GONE);
+                    swipeContainer.setRefreshing(false);
+                    errorCheckConnection.setVisibility(View.VISIBLE);
+                    Log.e(TAG, e.getMessage(), e);
+                }
+
+                @Override
+                public void onComplete() {
+                    swipeContainer.setRefreshing(false);
+                    bottomLayout.setVisibility(View.GONE);
+                }
+            }));
     }
 }

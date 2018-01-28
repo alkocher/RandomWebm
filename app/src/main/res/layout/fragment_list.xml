@@ -1,17 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/swipe_container"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activity.MainActivity"
-    android:background="@color/colorDivider" >
+    android:background="@color/colorDivider">
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recycler_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:scrollbars="vertical"
-            android:scrollbarStyle="insideOverlay" />
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/swipe_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
 
-</android.support.v4.widget.SwipeRefreshLayout>
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" >
+
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/recycler_view"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scrollbars="vertical"
+                            android:scrollbarStyle="insideOverlay"
+                            android:layout_above="@id/bottom_progress" />
+
+                        <include android:id="@+id/error_check_connection"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            layout="@layout/error_connection"
+                            android:layout_centerInParent="true"
+                            android:visibility="gone"/>
+
+                        <include android:id="@+id/error_no_results"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            layout="@layout/error_no_result"
+                            android:layout_centerInParent="true"
+                            android:visibility="gone"/>
+
+                        <include android:id="@+id/bottom_progress"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            layout="@layout/progress_layout"
+                            tools:visibility="visible"
+                            android:layout_alignParentBottom="true" />
+
+                </RelativeLayout>
+        </android.support.v4.widget.SwipeRefreshLayout>
+</RelativeLayout>

@@ -1,5 +1,6 @@
 package com.example.aleksejkocergin.randomwebm.activity;
 
+import android.support.v4.app.Fragment;
 import android.app.SearchManager;
 import android.content.Context;
 import android.os.Bundle;
@@ -7,6 +8,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -37,13 +39,15 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
-
-
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG_NAME = "";
+    private static final String ORDER_CREATED_AT = "createdAt";
+    private static final String ORDER_LIKES = "likes";
+    private static final String ORDER_VIEWS = "views";
     private static long backPressed;
-    private String createdAt = "createdAt";
+
     private RandomWebmApplication application;
     private Handler uiHandler = new Handler(Looper.getMainLooper());
     private ApolloCall<TagsQuery.Data> tagsCall;
@@ -69,10 +73,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // Default fragment
         if (savedInstanceState == null) {
+            getIntent().putExtra("order", ORDER_CREATED_AT);
+            getIntent().putExtra("tagName", TAG_NAME);
             getSupportFragmentManager().beginTransaction().replace(R.id.container, new RandomFragment()).commit();
         }
         loadTags();
     }
+
+    /*private boolean isOnline() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnectedOrConnecting();
+    }*/
 
     private List<TagsQuery.GetTag> responseTag(Response<TagsQuery.Data> response) {
         List<TagsQuery.GetTag> tagList = new ArrayList<>();
@@ -143,24 +155,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         searchAutoComplete.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String queryString = (String) adapterView.getItemAtPosition(i);
-                searchAutoComplete.setText("" + queryString);
-                getIntent().putExtra("order", createdAt);
-                getIntent().putExtra("tagName", queryString.toLowerCase());
-                getSupportFragmentManager().beginTransaction().replace(R.id.container, new WebmListFragment()).commit();
-                setTitle(queryString);
+                String queryTag = (String) adapterView.getItemAtPosition(i);
+                searchAutoComplete.setText("" + queryTag);
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.container, WebmListFragment.newInstance(ORDER_CREATED_AT, queryTag.toLowerCase())).commit();
+                setTitle(queryTag);
                 // Call collapse action view on 'MenuItem'
                 (menu.findItem(R.id.action_search)).collapseActionView();
             }
         });
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public boolean onQueryTextSubmit(String query) {
-                getIntent().putExtra("order", createdAt);
-                getIntent().putExtra("tagName", query.toLowerCase());
-                getSupportFragmentManager().beginTransaction().replace(R.id.container, new WebmListFragment()).commit();
+            public boolean onQueryTextSubmit(String queryTag) {
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.container, WebmListFragment.newInstance(ORDER_CREATED_AT, queryTag.toLowerCase())).commit();
                 (menu.findItem(R.id.action_search)).collapseActionView();
-                setTitle(query);
+                setTitle(queryTag);
                 return true;
             }
             @Override
@@ -186,32 +198,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-        String tagName = "";
-        WebmListFragment orderFragment = new WebmListFragment();
-
-        if (id == R.id.nav_home) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.container, new RandomFragment()).commit();
-        } else if (id == R.id.nav_recent) {
-            String createdAt = "createdAt";
-            getIntent().putExtra("order", createdAt);
-            getIntent().putExtra("tagName", tagName);
-            getSupportFragmentManager().beginTransaction().replace(R.id.container, orderFragment).commit();
-        } else if (id == R.id.nav_top_rated) {
-            String likes = "likes";
-            getIntent().putExtra("order", likes);
-            getIntent().putExtra("tagName", tagName);
-            getSupportFragmentManager().beginTransaction().replace(R.id.container, orderFragment).commit();
-        } else if (id == R.id.nav_most_viewed) {
-            String views = "views";
-            getIntent().putExtra("order", views);
-            getIntent().putExtra("tagName", tagName);
-            getSupportFragmentManager().beginTransaction().replace(R.id.container, orderFragment).commit();
-        } else if (id == R.id.nav_favorite) {
-
+        FragmentTransaction tr = getSupportFragmentManager().beginTransaction();
+        Fragment fragment = null;
+        switch (item.getItemId()) {
+            case R.id.nav_home:
+                fragment = RandomFragment.newInstance();
+                break;
+            case R.id.nav_recent:
+                fragment = WebmListFragment.newInstance(ORDER_CREATED_AT, TAG_NAME);
+                break;
+            case R.id.nav_top_rated:
+                fragment = WebmListFragment.newInstance(ORDER_LIKES, TAG_NAME);
+                break;
+            case R.id.nav_most_viewed:
+                fragment = WebmListFragment.newInstance(ORDER_VIEWS, TAG_NAME);
+                break;
+            case R.id.nav_favorite:
+                break;
         }
+        if (fragment != null) {
+            tr.replace(R.id.container, fragment).commit();
+        }
+
         item.setChecked(true);
         setTitle(item.getTitle());
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

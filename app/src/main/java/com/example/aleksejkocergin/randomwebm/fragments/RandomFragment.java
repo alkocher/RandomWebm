@@ -4,6 +4,7 @@ import android.content.res.Configuration;
 import android.support.v4.app.Fragment;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -74,14 +75,22 @@ public class RandomFragment extends Fragment implements View.OnClickListener, Ex
     private TagsAdapter tagsAdapter;
     private LinearLayoutManager mLayoutManager;
 
-    @BindView(R.id.loading_bar) ProgressBar progressBar;
-    @BindView(R.id.txt_createdAt) TextView createdAt;
-    @BindView(R.id.txt_views) TextView viewers;
-    @BindView(R.id.next_button) Button retryButton;
-    @BindView(R.id.player_view) SimpleExoPlayerView simpleExoPlayerView;
-    @BindView(R.id.root) View rootView;
-    @BindView(R.id.frame_player) FrameLayout frameLayout;
-    @BindView(R.id.tags_recycler_view) RecyclerView tagsRecyclerView;
+    @BindView(R.id.loading_bar)
+    ProgressBar progressBar;
+    @BindView(R.id.txt_createdAt)
+    TextView createdAt;
+    @BindView(R.id.txt_views)
+    TextView viewers;
+    @BindView(R.id.next_button)
+    Button retryButton;
+    @BindView(R.id.player_view)
+    SimpleExoPlayerView simpleExoPlayerView;
+    @BindView(R.id.root)
+    View rootView;
+    @BindView(R.id.frame_player)
+    FrameLayout frameLayout;
+    @BindView(R.id.tags_recycler_view)
+    RecyclerView tagsRecyclerView;
 
     String videoUrl;
     String id = "";
@@ -91,6 +100,11 @@ public class RandomFragment extends Fragment implements View.OnClickListener, Ex
     private boolean shouldAutoPlay;
     private int resumeWindow;
     private long resumePosition;
+
+    public static RandomFragment newInstance() {
+        RandomFragment randomFragment = new RandomFragment();
+        return randomFragment;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -196,7 +210,7 @@ public class RandomFragment extends Fragment implements View.OnClickListener, Ex
             createdAt.setText(getWebm.createdAt());
             viewers.setText(String.valueOf(getWebm.views()));
 
-            List<String> tags = new ArrayList<>();
+            final List<String> tags = new ArrayList<>();
             for (int i = 0; i < getWebm.tags().size(); ++i) {
                 tags.add(getWebm.tags().get(i).name());
             }
@@ -206,9 +220,9 @@ public class RandomFragment extends Fragment implements View.OnClickListener, Ex
                 @Override
                 public void onItemClick(View view, int position) {
                     tagName = tagsAdapter.getItem(position).toLowerCase();
-                    getActivity().getIntent().putExtra("tagName", tagName);
-                    getActivity().getIntent().putExtra("order", order);
-                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.container, new WebmListFragment()).commit();
+                    FragmentTransaction ft = getFragmentManager().beginTransaction();
+                    Fragment fragment = WebmListFragment.newInstance(order, tagName);
+                    ft.replace(R.id.container, fragment).commit();
                 }
             });
 

@@ -8,7 +8,7 @@
     <string name="mm_dd_yyyy">Mm-Dd-yyyy</string>
     <string name="views">views</string>
     <string name="uploaded">Uploaded</string>
-    <string name="nulll">0</string>
+    <string name="zero">0</string>
     <string name="tags">Tags:</string>
     <string name="exit">Press once again to exit</string>
 
@@ -19,4 +19,6 @@
     <string name="send">Send</string>
     <string name="share">Share</string>
     <string name="search_hint">Search for tags</string>
+    <string name="error_not_found">Video not found!</string>
+    <string name="no_results_found">No results found.</string>
 </resources>
