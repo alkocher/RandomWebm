@@ -18,7 +18,6 @@ import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.rx2.Rx2Apollo;
 import com.example.aleksejkocergin.myapplication.WebmListQuery;
-import com.example.aleksejkocergin.myapplication.WebmListQuery.GetWebmList;
 import com.example.aleksejkocergin.myapplication.type.Order;
 import com.example.aleksejkocergin.randomwebm.activity.PlayerActivity;
 import com.example.aleksejkocergin.randomwebm.R;
@@ -27,14 +26,12 @@ import com.example.aleksejkocergin.randomwebm.adapter.WebmRecyclerAdapter;
 
 import java.util.ArrayList;
 
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
-
 
 public class WebmListFragment extends Fragment {
 
@@ -75,7 +72,7 @@ public class WebmListFragment extends Fragment {
         tagName = getArguments().getString("tagName");
         mLayoutManager = new LinearLayoutManager(getActivity());
 
-        webmAdapter = new WebmRecyclerAdapter(getActivity(), new ArrayList<GetWebmList>());
+        webmAdapter = new WebmRecyclerAdapter(getActivity(), new ArrayList<>());
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(webmAdapter);
@@ -103,21 +100,13 @@ public class WebmListFragment extends Fragment {
             }
         });
 
-        webmAdapter.SetOnItemClickListener(new WebmRecyclerAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position, String id) {
-                Intent intent = new Intent(getActivity(), PlayerActivity.class);
-                intent.putExtra("id", id);
-                startActivity(intent);
-            }
+        webmAdapter.SetOnItemClickListener((view, position, id) -> {
+            Intent intent = new Intent(getActivity(), PlayerActivity.class);
+            intent.putExtra("id", id);
+            startActivity(intent);
         });
 
-        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                fetchWebmList();
-            }
-        });
+        swipeContainer.setOnRefreshListener(this::fetchWebmList);
 
         swipeContainer.setColorSchemeResources(
                 android.R.color.holo_green_light,
@@ -153,6 +142,7 @@ public class WebmListFragment extends Fragment {
         bottomLayout.setVisibility(View.VISIBLE);
         ApolloCall<WebmListQuery.Data> webmListQuery = application.apolloClient()
                 .query(new WebmListQuery(PAGE_SIZE, Order.valueOf(order), ++currentPage, tagName));
+
 
         disposables.add(Rx2Apollo.from(webmListQuery)
             .subscribeOn(Schedulers.io())
