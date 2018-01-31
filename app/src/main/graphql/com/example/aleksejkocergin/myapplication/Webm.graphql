@@ -12,3 +12,12 @@ query Webm ($id: ID!){
     }
   }
 }
+
+mutation ToggleLike($id: ID!, $hasLike: Boolean!, $hasDislike: Boolean!) {
+       toggleLike(id: $id, hasLike: $hasLike, hasDislike: $hasDislike) {
+           id
+       }
+       toggleDislike(id: $id, hasLike: $hasLike, hasDislike: $hasDislike) {
+           id
+       }
+   }
