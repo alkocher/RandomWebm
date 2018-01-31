@@ -142,8 +142,6 @@ public class WebmListFragment extends Fragment {
         bottomLayout.setVisibility(View.VISIBLE);
         ApolloCall<WebmListQuery.Data> webmListQuery = application.apolloClient()
                 .query(new WebmListQuery(PAGE_SIZE, Order.valueOf(order), ++currentPage, tagName));
-
-
         disposables.add(Rx2Apollo.from(webmListQuery)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
