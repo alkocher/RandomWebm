@@ -117,7 +117,7 @@
                     android:id="@+id/thumb_up"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_thumb_up_24dp"
+                    android:src="@drawable/ic_thumb_up_uncheked"
                     android:layout_marginEnd="8dp"
                     android:contentDescription="Thumb up" />
 
@@ -132,7 +132,7 @@
                     android:id="@+id/thumb_down"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_thumb_down_24dp"
+                    android:src="@drawable/ic_thumb_down_uncheked"
                     android:layout_marginEnd="8dp"
                     android:contentDescription="Thumb down" />
 
