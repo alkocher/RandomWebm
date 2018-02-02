@@ -36,23 +36,28 @@ import io.reactivex.schedulers.Schedulers;
 public class WebmListFragment extends Fragment {
 
     private static final String TAG = WebmListFragment.class.getSimpleName();
-    public static final int PAGE_SIZE = 10;
+    private static final int PAGE_SIZE = 10;
     private String order = "";
     private String tagName = "";
     private int currentPage = 0;
-
-    private WebmRecyclerAdapter webmAdapter;
     boolean userScrolled = false;
     boolean isLastPage = false;
-    private RandomWebmApplication application;
-    private final CompositeDisposable disposables = new CompositeDisposable();
-    private LinearLayoutManager mLayoutManager;
 
-    @BindView(R.id.recycler_view) RecyclerView mRecyclerView;
-    @BindView(R.id.swipe_container) SwipeRefreshLayout swipeContainer;
-    @BindView(R.id.bottom_progress) RelativeLayout bottomLayout;
-    @BindView(R.id.error_no_results) LinearLayout errorNoResults;
-    @BindView(R.id.error_check_connection) LinearLayout errorCheckConnection;
+    private WebmRecyclerAdapter webmAdapter;
+    private RandomWebmApplication application;
+    private LinearLayoutManager mLayoutManager;
+    private final CompositeDisposable disposables = new CompositeDisposable();
+
+    @BindView(R.id.recycler_view)
+    RecyclerView mRecyclerView;
+    @BindView(R.id.swipe_container)
+    SwipeRefreshLayout swipeContainer;
+    @BindView(R.id.bottom_progress)
+    RelativeLayout bottomLayout;
+    @BindView(R.id.error_no_results)
+    LinearLayout errorNoResults;
+    @BindView(R.id.error_check_connection)
+    LinearLayout errorCheckConnection;
 
     public static WebmListFragment newInstance(String order, String tagName) {
         WebmListFragment webmListFragment = new WebmListFragment();
