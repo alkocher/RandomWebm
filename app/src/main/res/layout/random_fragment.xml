@@ -6,19 +6,18 @@
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:keepScreenOn="true"
-    tools:context=".activity.MainActivity">
+    android:keepScreenOn="true">
 
     <FrameLayout
         android:id="@+id/frame_player"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="256dp"
         android:background="#000">
 
         <com.google.android.exoplayer2.ui.SimpleExoPlayerView
             android:id="@+id/player_view"
             android:layout_width="match_parent"
-            android:layout_height="256dp"
+            android:layout_height="match_parent"
             app:resize_mode="fixed_height"
             app:show_timeout="5000"/>
 
