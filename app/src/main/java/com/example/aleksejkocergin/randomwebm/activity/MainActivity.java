@@ -29,8 +29,8 @@ import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.exception.ApolloException;
 import com.example.aleksejkocergin.myapplication.TagsQuery;
 import com.example.aleksejkocergin.randomwebm.RandomWebmApplication;
-import com.example.aleksejkocergin.randomwebm.fragments.WebmListFragment;
 import com.example.aleksejkocergin.randomwebm.fragments.RandomFragment;
+import com.example.aleksejkocergin.randomwebm.fragments.WebmListFragment;
 import com.example.aleksejkocergin.randomwebm.R;
 
 import java.util.ArrayList;
