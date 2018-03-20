@@ -9,7 +9,6 @@ import okhttp3.OkHttpClient;
 public class RandomWebmApplication extends Application {
 
     private static final String BASE_URL = "https://randomwebm.herokuapp.com/graphql";
-
     private ApolloClient apolloClient;
 
     @Override public void onCreate() {
