@@ -28,10 +28,10 @@ import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.exception.ApolloException;
 import com.example.aleksejkocergin.myapplication.TagsQuery;
-import com.example.aleksejkocergin.randomwebm.RandomWebmApplication;
 import com.example.aleksejkocergin.randomwebm.fragments.RandomFragment;
 import com.example.aleksejkocergin.randomwebm.fragments.WebmListFragment;
 import com.example.aleksejkocergin.randomwebm.R;
+import com.example.aleksejkocergin.randomwebm.util.WebmApolloClient;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,7 +48,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static final String ORDER_VIEWS = "views";
     private static long backPressed;
 
-    private RandomWebmApplication application;
     private Handler uiHandler = new Handler(Looper.getMainLooper());
     private ApolloCall<TagsQuery.Data> tagsCall;
     private ArrayAdapter<String> arrayAdapter;
@@ -59,7 +58,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        application = (RandomWebmApplication) getApplicationContext();
         arrayAdapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_dropdown_item_1line);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -88,7 +86,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private List<TagsQuery.GetTag> responseTag(Response<TagsQuery.Data> response) {
         List<TagsQuery.GetTag> tagList = new ArrayList<>();
-
         final TagsQuery.Data responseData = response.data();
         if (responseData == null) {
             return Collections.emptyList();
@@ -103,10 +100,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void loadTags() {
-
         final TagsQuery tagsQuery = TagsQuery.builder()
                 .build();
-        tagsCall = application.apolloClient()
+        tagsCall = WebmApolloClient.getWebmApolloClient()
                 .query(tagsQuery);
         tagsCall.enqueue(tagsDataCallback);
     }
