@@ -21,8 +21,8 @@ import com.example.aleksejkocergin.myapplication.WebmListQuery;
 import com.example.aleksejkocergin.myapplication.type.Order;
 import com.example.aleksejkocergin.randomwebm.activity.PlayerActivity;
 import com.example.aleksejkocergin.randomwebm.R;
-import com.example.aleksejkocergin.randomwebm.RandomWebmApplication;
 import com.example.aleksejkocergin.randomwebm.adapter.WebmRecyclerAdapter;
+import com.example.aleksejkocergin.randomwebm.util.WebmApolloClient;
 
 import java.util.ArrayList;
 
@@ -44,7 +44,6 @@ public class WebmListFragment extends Fragment {
     boolean isLastPage = false;
 
     private WebmRecyclerAdapter webmAdapter;
-    private RandomWebmApplication application;
     private LinearLayoutManager mLayoutManager;
     private final CompositeDisposable disposables = new CompositeDisposable();
 
@@ -72,7 +71,6 @@ public class WebmListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_list, container, false);
         ButterKnife.bind(this, v);
-        application = (RandomWebmApplication) getActivity().getApplication();
         order = getArguments().getString("order");
         tagName = getArguments().getString("tagName");
         mLayoutManager = new LinearLayoutManager(getActivity());
@@ -139,13 +137,15 @@ public class WebmListFragment extends Fragment {
         }
         if (mLayoutManager.getItemCount() == 0){
             errorNoResults.setVisibility(View.VISIBLE);
+        } else {
+            errorNoResults.setVisibility(View.GONE);
         }
     }
 
     private void fetchWebmList() {
         errorNoResults.setVisibility(View.GONE);
         bottomLayout.setVisibility(View.VISIBLE);
-        ApolloCall<WebmListQuery.Data> webmListQuery = application.apolloClient()
+        ApolloCall<WebmListQuery.Data> webmListQuery = WebmApolloClient.getWebmApolloClient()
                 .query(new WebmListQuery(PAGE_SIZE, Order.valueOf(order), ++currentPage, tagName));
         disposables.add(Rx2Apollo.from(webmListQuery)
             .subscribeOn(Schedulers.io())
