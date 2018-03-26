@@ -1,0 +1,29 @@
+mutation ToggleLikeMutation(
+    $id: ID!,
+    $hasLike: Boolean!,
+    $hasDislike: Boolean!
+)
+{
+    toggleLike(
+        id: $id,
+        hasLike: $hasLike,
+        hasDislike: $hasDislike
+    ) {
+        id
+    }
+}
+
+mutation ToggleDislikeMutation(
+    $id: ID!,
+    $hasLike: Boolean!,
+    $hasDislike: Boolean!
+)
+{
+    toggleDislike(
+        id: $id,
+        hasLike: $hasLike,
+        hasDislike: $hasDislike
+    ) {
+        id
+    }
+}
