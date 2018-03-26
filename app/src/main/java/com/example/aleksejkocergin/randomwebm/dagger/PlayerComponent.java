@@ -1,6 +1,5 @@
 package com.example.aleksejkocergin.randomwebm.dagger;
 
-import com.example.aleksejkocergin.randomwebm.activity.MainActivity;
 import com.example.aleksejkocergin.randomwebm.activity.PlayerActivity;
 import com.example.aleksejkocergin.randomwebm.fragments.RandomFragment;
 
