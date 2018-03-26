@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
 
-    <application android:name=".RandomWebmApplication"
+    <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -16,9 +16,9 @@
 
         <activity android:name=".activity.MainActivity"
             android:launchMode="singleTop"
+            android:configChanges="orientation|keyboard|screenSize|screenLayout|smallestScreenSize|uiMode"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode">
+            android:theme="@style/AppTheme.NoActionBar">
         <intent-filter>
             <action android:name="android.intent.action.SEARCH" />
         </intent-filter>
@@ -30,7 +30,7 @@
 
         <activity android:name=".activity.PlayerActivity"
             android:theme="@style/AppTheme.FullScreen"
-            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode" >
+            android:configChanges="orientation|keyboard|screenSize|screenLayout|smallestScreenSize|uiMode" >
 
         </activity>
         <activity android:name=".activity.SplashActivity"
