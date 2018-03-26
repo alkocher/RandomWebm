@@ -1,4 +1,4 @@
-package com.example.aleksejkocergin.randomwebm.components;
+package com.example.aleksejkocergin.randomwebm.dagger;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
