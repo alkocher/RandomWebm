@@ -1,8 +1,8 @@
-package com.example.aleksejkocergin.randomwebm.module;
+package com.example.aleksejkocergin.randomwebm.dagger;
 
 import android.content.Context;
 
-import com.example.aleksejkocergin.randomwebm.components.PlayerScope;
+import com.example.aleksejkocergin.randomwebm.dagger.PlayerScope;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
