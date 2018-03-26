@@ -13,22 +13,30 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
-import com.apollographql.apollo.ApolloCall;
-import com.apollographql.apollo.api.Response;
-import com.apollographql.apollo.rx2.Rx2Apollo;
 import com.example.aleksejkocergin.myapplication.WebmQuery;
 import com.example.aleksejkocergin.randomwebm.R;
-import com.example.aleksejkocergin.randomwebm.RandomWebmApplication;
 import com.example.aleksejkocergin.randomwebm.adapter.TagsAdapter;
-import com.example.aleksejkocergin.randomwebm.components.DaggerPlayerComponent;
-import com.example.aleksejkocergin.randomwebm.components.PlayerComponent;
-import com.example.aleksejkocergin.randomwebm.module.ExoPlayerModule;
+import com.example.aleksejkocergin.randomwebm.dagger.DaggerPlayerComponent;
+import com.example.aleksejkocergin.randomwebm.dagger.PlayerComponent;
+import com.example.aleksejkocergin.randomwebm.interfaces.ToggleVotes;
+import com.example.aleksejkocergin.randomwebm.interfaces.WebmData;
+import com.example.aleksejkocergin.randomwebm.dagger.ExoPlayerModule;
+import com.example.aleksejkocergin.randomwebm.util.ToggleVotesUtil;
+import com.example.aleksejkocergin.randomwebm.util.WebmDetailsFetcher;
+import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -41,13 +49,8 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.observers.DisposableObserver;
-import io.reactivex.schedulers.Schedulers;
 
-
-public class RandomFragment extends Fragment {
+public class RandomFragment extends Fragment implements ToggleVotes, WebmData {
     @BindView(R.id.player_view)
     SimpleExoPlayerView playerView;
     @BindView(R.id.txt_createdAt)
@@ -58,17 +61,39 @@ public class RandomFragment extends Fragment {
     Button randomButton;
     @BindView(R.id.tags_recycler_view)
     RecyclerView mTagsRecycler;
+    @BindView(R.id.loading_bar)
+    ProgressBar progressBar;
 
-    @Inject DefaultBandwidthMeter bandwidthMeter;
-    @Inject TrackSelection.Factory videoTrackSelectionFactory;
-    @Inject TrackSelector trackSelector;
-    @Inject SimpleExoPlayer player;
-    @Inject DataSource.Factory dataSourceFactory;
+    // Likes N dislikes
+    @BindView(R.id.like_count)
+    TextView tvLikeCount;
+    @BindView(R.id.dislike_count)
+    TextView tvDislikeCount;
+    @BindView(R.id.thumb_up_button)
+    ToggleButton thumbUpButton;
+    @BindView(R.id.thumb_down_button)
+    ToggleButton thumbDownButton;
 
-    private MediaSource mediaSource;
+    @Inject
+    DefaultBandwidthMeter bandwidthMeter;
+    @Inject
+    TrackSelection.Factory videoTrackSelectionFactory;
+    @Inject
+    TrackSelector trackSelector;
+    @Inject
+    SimpleExoPlayer player;
+    @Inject
+    DataSource.Factory dataSourceFactory;
+
+    private String webmId;
+    private int likeCount;
+    private int dislikeCount;
+    private boolean hasLike = false;
+    private boolean hasDislike = false;
+    private ToggleVotesUtil toggleVotesUtil;
+    private WebmDetailsFetcher webmFetcher;
+
     private TagsAdapter mTagsAdapter;
-    private RandomWebmApplication mApplication;
-    private CompositeDisposable mDisposable = new CompositeDisposable();
 
     public static RandomFragment newInstance() {
         return new RandomFragment();
@@ -78,42 +103,16 @@ public class RandomFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.random_fragment, container, false);
         ButterKnife.bind(this, v);
-        mApplication = (RandomWebmApplication) getActivity().getApplication();
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(
                 getContext(), LinearLayoutManager.HORIZONTAL, false);
         mTagsRecycler.setLayoutManager(mLayoutManager);
+        toggleVotesUtil = new ToggleVotesUtil(this);
+        webmFetcher = new WebmDetailsFetcher(this);
+        randomButton.setOnClickListener(view -> webmFetcher.fetchWebmDetails());
         initPlayerComponent();
-        fetchWebmDetails();
-        randomButton.setOnClickListener(view -> {
-            mediaSource.releaseSource();
-            fetchWebmDetails();
-        });
+        webmFetcher.fetchWebmDetails();
 
         return v;
-    }
-
-    private void initPlayerComponent() {
-        if (player == null) {
-            PlayerComponent component = DaggerPlayerComponent
-                    .builder()
-                    .exoPlayerModule(new ExoPlayerModule(getActivity()))
-                    .build();
-            component.inject(this);
-        }
-    }
-
-    private void initPlayer(String VIDEO_URL) {
-        mediaSource = new ExtractorMediaSource.Factory(dataSourceFactory)
-                .createMediaSource(Uri.parse(VIDEO_URL));
-        playerView.setPlayer(player);
-        player.prepare(mediaSource);
-        player.setPlayWhenReady(true);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        player.release();
     }
 
     @Override
@@ -136,12 +135,44 @@ public class RandomFragment extends Fragment {
         }
     }
 
-    private void setWebmData(WebmQuery.Data data) {
+    @Override
+    public void plusWebmLike() {
+        tvLikeCount.setText(String.valueOf(likeCount += 1));
+    }
+
+    @Override
+    public void plusWebmDislike() {
+        tvDislikeCount.setText(String.valueOf(dislikeCount += 1));
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        player.release();
+    }
+
+    private void initPlayerComponent() {
+        if (player == null) {
+            PlayerComponent component = DaggerPlayerComponent.builder()
+                    .exoPlayerModule(new ExoPlayerModule(getActivity())).build();
+            component.inject(this);
+        }
+    }
+
+    @Override
+    public void setWebmData(WebmQuery.Data data) {
         final WebmQuery.GetWebm getWebm = data.getWebm();
         if (getWebm != null) {
+            likeCount = getWebm.likes();
+            dislikeCount = getWebm.dislikes();
+            webmId = getWebm.id();
+
             initPlayer(getWebm.url());
+
             createdAt.setText(getWebm.createdAt());
             views.setText(String.valueOf(getWebm.views()));
+            tvLikeCount.setText(String.valueOf(likeCount));
+            tvDislikeCount.setText(String.valueOf(dislikeCount));
 
             List<String> tagsList = new ArrayList<>();
             for (int i = 0; i < getWebm.tags().size(); ++i) {
@@ -155,26 +186,77 @@ public class RandomFragment extends Fragment {
                 Fragment fragment = WebmListFragment.newInstance("createdAt", tagName);
                 ft.replace(R.id.container, fragment).commit();
             });
+
+            thumbUpButton.setOnClickListener(view -> toggleVotesUtil
+                    .toggleLike(webmId, hasLike, hasDislike));
+
+            thumbDownButton.setOnClickListener(view -> toggleVotesUtil
+                    .toggleDislike(webmId, hasLike, hasDislike));
         }
     }
 
-    private void fetchWebmDetails() {
-        ApolloCall<WebmQuery.Data> webmQuery = mApplication.apolloClient()
-                .query(new WebmQuery(""));
-        mDisposable.add(Rx2Apollo.from(webmQuery)
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribeOn(Schedulers.io())
-        .subscribeWith(new DisposableObserver<Response<WebmQuery.Data>>() {
+    private void initPlayer(String VIDEO_URL) {
+        playerView.setPlayer(player);
+        MediaSource mediaSource = new ExtractorMediaSource.Factory(dataSourceFactory)
+                .createMediaSource(Uri.parse(VIDEO_URL));
+        player.prepare(mediaSource);
+        player.setPlayWhenReady(true);
+
+        // Progress bar
+        player.addListener(new ExoPlayer.EventListener() {
             @Override
-            public void onNext(Response<WebmQuery.Data> dataResponse) {
-                setWebmData(dataResponse.data());
+            public void onTimelineChanged(Timeline timeline, Object manifest) {
+
             }
 
             @Override
-            public void onError(Throwable e) {}
+            public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+
+            }
 
             @Override
-            public void onComplete() {}
-        }));
+            public void onLoadingChanged(boolean isLoading) {
+
+            }
+
+            @Override
+            public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+                if (playbackState == ExoPlayer.STATE_BUFFERING) {
+                    progressBar.setVisibility(View.VISIBLE);
+                } else {
+                    progressBar.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onRepeatModeChanged(int repeatMode) {
+
+            }
+
+            @Override
+            public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+
+            }
+
+            @Override
+            public void onPlayerError(ExoPlaybackException error) {
+
+            }
+
+            @Override
+            public void onPositionDiscontinuity(int reason) {
+
+            }
+
+            @Override
+            public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+
+            }
+
+            @Override
+            public void onSeekProcessed() {
+
+            }
+        });
     }
 }
