@@ -197,15 +197,29 @@ public class RandomFragment extends Fragment implements ToggleVotes, WebmData {
                 ft.replace(R.id.container, fragment).commit();
             });
 
+            likeButton(webmId);
+
             thumbUpButton.setOnClickListener((View view) -> {
                 toggleVotesUtil.toggleLike(webmId, hasLike, hasDislike);
                 saveLikePreferences(webmId);
+
             });
 
             thumbDownButton.setOnClickListener((View view) -> {
                 toggleVotesUtil.toggleDislike(webmId, hasLike, hasDislike);
                 savedDislikePreferences(webmId);
             });
+        }
+    }
+
+    private void likeButton(String webmId) {
+        for (int i = 0; i < likesIdsList.size(); ++i) {
+            if (likesIdsList.get(i).equals(webmId)) {
+                Toast.makeText(getActivity(), "ID есть в списке!", Toast.LENGTH_SHORT).show();
+                Log.d("LIKE_PREFS", "Айдишник совпал!");
+            } else {
+                Log.d("LIKE_PREFS", "Не найдено!");
+            }
         }
     }
 

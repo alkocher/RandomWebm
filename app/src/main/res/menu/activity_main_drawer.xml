@@ -21,7 +21,7 @@
                     android:title="Recent" />
                 <item
                     android:id="@+id/nav_top_rated"
-                    android:icon="@drawable/ic_thumb_up_black_24dp"
+                    android:icon="@drawable/ic_thumb_up_chek"
                     android:title="Top Rated" />
                 <item
                     android:id="@+id/nav_most_viewed"

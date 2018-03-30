@@ -29,7 +29,6 @@
         <item name="actionMenuTextColor">@android:color/white</item>
         <item name="android:queryHint">@android:color/white</item>
         <item name="android:textColorHint">@android:color/white</item>
-
         <item name="android:dropDownListViewStyle">@style/myDropDownListViewStyle</item>
     </style>
 
