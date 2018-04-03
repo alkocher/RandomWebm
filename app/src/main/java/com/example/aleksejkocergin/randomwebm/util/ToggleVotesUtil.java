@@ -5,7 +5,6 @@ import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.rx2.Rx2Apollo;
 import com.example.aleksejkocergin.myapplication.ToggleDislikeMutation;
 import com.example.aleksejkocergin.myapplication.ToggleLikeMutation;
-import com.example.aleksejkocergin.randomwebm.interfaces.ToggleVotes;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -15,11 +14,6 @@ import io.reactivex.schedulers.Schedulers;
 public class ToggleVotesUtil {
 
     private CompositeDisposable mDisposable = new CompositeDisposable();
-    private ToggleVotes toggleVotes;
-
-    public ToggleVotesUtil(ToggleVotes toggleVotes) {
-        this.toggleVotes = toggleVotes;
-    }
 
     public void toggleLike(String webmId, boolean hasLike, boolean hasDislike) {
         ApolloMutationCall<ToggleLikeMutation.Data> likeMutationCall =
@@ -31,7 +25,7 @@ public class ToggleVotesUtil {
         .subscribeWith(new DisposableObserver<Response<ToggleLikeMutation.Data>>() {
             @Override
             public void onNext(Response<ToggleLikeMutation.Data> dataResponse) {
-                dataResponse.data();
+
             }
 
             @Override
@@ -41,7 +35,7 @@ public class ToggleVotesUtil {
 
             @Override
             public void onComplete() {
-                toggleVotes.plusWebmLike();
+
             }
         }));
     }
@@ -56,7 +50,7 @@ public class ToggleVotesUtil {
         .subscribeWith(new DisposableObserver<Response<ToggleDislikeMutation.Data>>() {
             @Override
             public void onNext(Response<ToggleDislikeMutation.Data> dataResponse) {
-                dataResponse.data();
+
             }
 
             @Override
@@ -66,7 +60,7 @@ public class ToggleVotesUtil {
 
             @Override
             public void onComplete() {
-                toggleVotes.plusWebmDislike();
+
             }
         }));
     }
