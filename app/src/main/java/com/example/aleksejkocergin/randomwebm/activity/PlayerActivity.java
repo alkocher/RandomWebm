@@ -83,6 +83,12 @@ public class PlayerActivity extends AppCompatActivity implements WebmData{
         }
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        player.release();
+    }
+
     private void initPlayerComponent() {
         if (player == null) {
             PlayerComponent component = DaggerPlayerComponent.builder()
