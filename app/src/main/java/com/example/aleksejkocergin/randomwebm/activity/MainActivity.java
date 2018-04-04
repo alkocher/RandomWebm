@@ -1,5 +1,6 @@
 package com.example.aleksejkocergin.randomwebm.activity;
 
+import android.content.SharedPreferences;
 import android.support.v4.app.Fragment;
 import android.app.SearchManager;
 import android.content.Context;
@@ -36,12 +37,14 @@ import com.example.aleksejkocergin.randomwebm.util.WebmApolloClient;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import javax.annotation.Nonnull;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String WEBM_APP_PREFS = "webm_settings";
     private static final String TAG_NAME = "";
     private static final String ORDER_CREATED_AT = "createdAt";
     private static final String ORDER_LIKES = "likes";
@@ -49,7 +52,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static long backPressed;
 
     private Handler uiHandler = new Handler(Looper.getMainLooper());
-    private ApolloCall<TagsQuery.Data> tagsCall;
     private ArrayAdapter<String> arrayAdapter;
 
     @Override
@@ -63,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
+        drawer.addDrawerListener(toggle);
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -102,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void loadTags() {
         final TagsQuery tagsQuery = TagsQuery.builder()
                 .build();
-        tagsCall = WebmApolloClient.getWebmApolloClient()
+        ApolloCall<TagsQuery.Data> tagsCall = WebmApolloClient.getWebmApolloClient()
                 .query(tagsQuery);
         tagsCall.enqueue(tagsDataCallback);
     }
@@ -196,6 +198,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         FragmentTransaction tr = getSupportFragmentManager().beginTransaction();
         Fragment fragment = null;
+
         switch (item.getItemId()) {
             case R.id.nav_home:
                 fragment = RandomFragment.newInstance();
@@ -210,8 +213,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 fragment = WebmListFragment.newInstance(ORDER_VIEWS, TAG_NAME);
                 break;
             case R.id.nav_favorite:
+                SharedPreferences prefs = getSharedPreferences(WEBM_APP_PREFS, Context.MODE_PRIVATE);
+                ArrayList<String> likedWebmList = new ArrayList<>(Objects
+                        .requireNonNull(prefs.getStringSet("liked_ids_list", null)));
+                fragment = WebmListFragment.newInstance(ORDER_CREATED_AT, TAG_NAME, likedWebmList);
                 break;
         }
+
         if (fragment != null) {
             tr.replace(R.id.container, fragment).commit();
         }
