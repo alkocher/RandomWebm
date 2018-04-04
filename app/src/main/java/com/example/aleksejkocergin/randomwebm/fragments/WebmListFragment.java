@@ -25,6 +25,7 @@ import com.example.aleksejkocergin.randomwebm.adapter.WebmRecyclerAdapter;
 import com.example.aleksejkocergin.randomwebm.util.WebmApolloClient;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -39,6 +40,7 @@ public class WebmListFragment extends Fragment {
     private static final int PAGE_SIZE = 10;
     private String order = "";
     private String tagName = "";
+    private List<String> likedWebms;
     private int currentPage = 0;
     boolean userScrolled = false;
     boolean isLastPage = false;
@@ -67,12 +69,24 @@ public class WebmListFragment extends Fragment {
         return webmListFragment;
     }
 
+    public static WebmListFragment newInstance(String order, String tagName, ArrayList<String> likedWebms) {
+        WebmListFragment webmListFragment = new WebmListFragment();
+        Bundle args = new Bundle();
+        args.putString("order", order);
+        args.putString("tagName", tagName);
+        args.putStringArrayList("likedWebm", likedWebms);
+        webmListFragment.setArguments(args);
+        return webmListFragment;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_list, container, false);
         ButterKnife.bind(this, v);
+
         order = getArguments().getString("order");
         tagName = getArguments().getString("tagName");
+        likedWebms = getArguments().getStringArrayList("likedWebm");
         mLayoutManager = new LinearLayoutManager(getActivity());
 
         webmAdapter = new WebmRecyclerAdapter(getActivity(), new ArrayList<>());
@@ -146,7 +160,12 @@ public class WebmListFragment extends Fragment {
         errorNoResults.setVisibility(View.GONE);
         bottomLayout.setVisibility(View.VISIBLE);
         ApolloCall<WebmListQuery.Data> webmListQuery = WebmApolloClient.getWebmApolloClient()
-                .query(new WebmListQuery(PAGE_SIZE, Order.valueOf(order), ++currentPage, tagName));
+                .query(new WebmListQuery(
+                        PAGE_SIZE,
+                        Order.valueOf(order),
+                        ++currentPage,
+                        tagName,
+                        likedWebms));
         disposables.add(Rx2Apollo.from(webmListQuery)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
