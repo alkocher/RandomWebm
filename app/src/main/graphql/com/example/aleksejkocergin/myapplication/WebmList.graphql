@@ -1,5 +1,19 @@
-query WebmList ($pageSize: Int!, $order: Order!, $page: Int!, $tagName: String!) {
-    getWebmList (order: $order, pageSize: $pageSize, page: $page, tagName: $tagName) {
+query WebmList(
+    $pageSize: Int!,
+    $order: Order!,
+    $page: Int!,
+    $tagName: String!,
+    $likedWebms: [ID]
+    )
+{
+    getWebmList(
+        order: $order,
+        pageSize: $pageSize,
+        page: $page,
+        tagName: $tagName,
+        likedWebms: $likedWebms
+        )
+{
         id,
         source,
         views,
@@ -8,6 +22,8 @@ query WebmList ($pageSize: Int!, $order: Order!, $page: Int!, $tagName: String!)
         createdAt,
         previewUrl
         url,
-        tags {name}
+        tags {
+            name
+        }
     }
 }
