@@ -19,8 +19,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.support.v7.widget.SearchView;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
@@ -150,18 +148,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         }
         searchAutoComplete.setAdapter(arrayAdapter);
-        searchAutoComplete.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String queryTag = (String) adapterView.getItemAtPosition(i);
-                searchAutoComplete.setText("" + queryTag);
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.container, WebmListFragment.newInstance(ORDER_CREATED_AT, queryTag.toLowerCase())).commit();
-                setTitle(queryTag);
-                // Call collapse action view on 'MenuItem'
-                (menu.findItem(R.id.action_search)).collapseActionView();
-            }
+        searchAutoComplete.setOnItemClickListener((adapterView, view, i, l) -> {
+            String queryTag = (String) adapterView.getItemAtPosition(i);
+            searchAutoComplete.setText(queryTag);
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.container, WebmListFragment.newInstance(ORDER_CREATED_AT, queryTag.toLowerCase())).commit();
+            setTitle(queryTag);
+            // Call collapse action view on 'MenuItem'
+            (menu.findItem(R.id.action_search)).collapseActionView();
         });
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
