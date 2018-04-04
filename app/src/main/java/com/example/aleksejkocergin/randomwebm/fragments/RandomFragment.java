@@ -30,8 +30,8 @@ import com.example.aleksejkocergin.randomwebm.dagger.ExoPlayerModule;
 import com.example.aleksejkocergin.randomwebm.util.ToggleVotesUtil;
 import com.example.aleksejkocergin.randomwebm.util.WebmDetailsFetcher;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
@@ -47,6 +47,7 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -137,14 +138,14 @@ public class RandomFragment extends Fragment implements WebmData {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
+            Objects.requireNonNull(((AppCompatActivity) getActivity()).getSupportActionBar()).hide();
             getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
             SimpleExoPlayerView.LayoutParams params =
                     (SimpleExoPlayerView.LayoutParams) playerView.getLayoutParams();
             params.height = ViewGroup.LayoutParams.MATCH_PARENT;
             playerView.setLayoutParams(params);
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            ((AppCompatActivity) getActivity()).getSupportActionBar().show();
+            Objects.requireNonNull(((AppCompatActivity) getActivity()).getSupportActionBar()).show();
             getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
             SimpleExoPlayerView.LayoutParams params =
                     (SimpleExoPlayerView.LayoutParams) playerView.getLayoutParams();
@@ -178,8 +179,8 @@ public class RandomFragment extends Fragment implements WebmData {
             tvDislikeCount.setText(String.valueOf(dislikeCount));
 
             List<String> tagsList = new ArrayList<>();
-            for (int i = 0; i < getWebm.tags().size(); ++i) {
-                tagsList.add(getWebm.tags().get(i).name());
+            for (int i = 0; i < Objects.requireNonNull(getWebm.tags()).size(); ++i) {
+                tagsList.add(Objects.requireNonNull(getWebm.tags()).get(i).name());
             }
 
             mTagsAdapter = new TagsAdapter(getContext(), tagsList);
@@ -314,7 +315,7 @@ public class RandomFragment extends Fragment implements WebmData {
         player.setPlayWhenReady(true);
 
         // Progress bar
-        player.addListener(new ExoPlayer.EventListener() {
+        player.addListener(new Player.EventListener() {
             @Override
             public void onTimelineChanged(Timeline timeline, Object manifest) {
 
@@ -332,7 +333,7 @@ public class RandomFragment extends Fragment implements WebmData {
 
             @Override
             public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-                if (playbackState == ExoPlayer.STATE_BUFFERING) {
+                if (playbackState == Player.STATE_BUFFERING) {
                     progressBar.setVisibility(View.VISIBLE);
                 } else {
                     progressBar.setVisibility(View.GONE);
