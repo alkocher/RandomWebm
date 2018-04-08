@@ -1,9 +1,12 @@
 package com.example.aleksejkocergin.randomwebm.fragments;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -23,9 +26,10 @@ import com.example.aleksejkocergin.randomwebm.activity.PlayerActivity;
 import com.example.aleksejkocergin.randomwebm.R;
 import com.example.aleksejkocergin.randomwebm.adapter.WebmRecyclerAdapter;
 import com.example.aleksejkocergin.randomwebm.util.WebmApolloClient;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -38,9 +42,11 @@ public class WebmListFragment extends Fragment {
 
     private static final String TAG = WebmListFragment.class.getSimpleName();
     private static final int PAGE_SIZE = 10;
+    private static final String WEBM_APP_PREFS = "webm_settings";
+    private static final String LIKED_WEBM_ID = "liked_ids_list";
     private String order = "";
     private String tagName = "";
-    private List<String> likedWebms;
+    private ArrayList<String> likedWebms;
     private int currentPage = 0;
     boolean userScrolled = false;
     boolean isLastPage = false;
@@ -69,16 +75,6 @@ public class WebmListFragment extends Fragment {
         return webmListFragment;
     }
 
-    public static WebmListFragment newInstance(String order, String tagName, ArrayList<String> likedWebms) {
-        WebmListFragment webmListFragment = new WebmListFragment();
-        Bundle args = new Bundle();
-        args.putString("order", order);
-        args.putString("tagName", tagName);
-        args.putStringArrayList("likedWebm", likedWebms);
-        webmListFragment.setArguments(args);
-        return webmListFragment;
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_list, container, false);
@@ -86,9 +82,8 @@ public class WebmListFragment extends Fragment {
 
         order = getArguments().getString("order");
         tagName = getArguments().getString("tagName");
-        likedWebms = getArguments().getStringArrayList("likedWebm");
         mLayoutManager = new LinearLayoutManager(getActivity());
-
+        likedWebms = new ArrayList<>();
         webmAdapter = new WebmRecyclerAdapter(getActivity(), new ArrayList<>());
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -129,6 +124,20 @@ public class WebmListFragment extends Fragment {
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
+
+        if (((AppCompatActivity) getActivity()).getSupportActionBar().getTitle().equals("Favorite")) {
+            String[] likedArrPrefs = new Gson().fromJson(getActivity().getSharedPreferences(WEBM_APP_PREFS,
+                    Context.MODE_PRIVATE).getString(LIKED_WEBM_ID, null), String[].class);
+            try {
+                likedWebms.addAll(Arrays.asList(likedArrPrefs));
+            } catch (NullPointerException e) {
+                Log.e("my_exception", "Error: " + e.toString());
+                FragmentTransaction tr = getActivity().getSupportFragmentManager().beginTransaction();
+                Fragment fragment = EmptyFragment.newInstance();
+                tr.replace(R.id.container, fragment).commit();
+            }
+        }
+
         fetchWebmList();
         return v;
     }
