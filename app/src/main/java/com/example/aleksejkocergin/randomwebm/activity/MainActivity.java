@@ -1,6 +1,5 @@
 package com.example.aleksejkocergin.randomwebm.activity;
 
-import android.content.SharedPreferences;
 import android.support.v4.app.Fragment;
 import android.app.SearchManager;
 import android.content.Context;
@@ -35,14 +34,12 @@ import com.example.aleksejkocergin.randomwebm.util.WebmApolloClient;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 import javax.annotation.Nonnull;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    private static final String WEBM_APP_PREFS = "webm_settings";
     private static final String TAG_NAME = "";
     private static final String ORDER_CREATED_AT = "createdAt";
     private static final String ORDER_LIKES = "likes";
@@ -75,6 +72,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             getIntent().putExtra("tagName", TAG_NAME);
             getSupportFragmentManager().beginTransaction().replace(R.id.container, new RandomFragment()).commit();
         }
+
         loadTags();
     }
 
@@ -90,12 +88,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (responseData == null) {
             return Collections.emptyList();
         }
+
         final List<TagsQuery.GetTag> tags = responseData.getTags();
+
         if (tags != null) {
             if (tags.size() > 0) {
                 tagList.addAll(tags);
             }
         }
+
         return tagList;
     }
 
@@ -116,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             }
         }
+
         @Override
         public void onFailure(@Nonnull ApolloException e) {
             Log.e(TAG, e.getMessage(), e);
@@ -134,6 +136,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             } else {
                 Toast.makeText(getBaseContext(), R.string.exit, Toast.LENGTH_SHORT).show();
             }
+
             backPressed = System.currentTimeMillis();
         }
     }
@@ -144,9 +147,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         final SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         final SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         final SearchView.SearchAutoComplete searchAutoComplete = searchView.findViewById(android.support.v7.appcompat.R.id.search_src_text);
+
         if (searchManager != null) {
             searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         }
+
         searchAutoComplete.setAdapter(arrayAdapter);
         searchAutoComplete.setOnItemClickListener((adapterView, view, i, l) -> {
             String queryTag = (String) adapterView.getItemAtPosition(i);
@@ -185,6 +190,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (id == R.id.action_settings) {
             return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -208,10 +214,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 fragment = WebmListFragment.newInstance(ORDER_VIEWS, TAG_NAME);
                 break;
             case R.id.nav_favorite:
-                SharedPreferences prefs = getSharedPreferences(WEBM_APP_PREFS, Context.MODE_PRIVATE);
-                ArrayList<String> likedWebmList = new ArrayList<>(Objects
-                        .requireNonNull(prefs.getStringSet("liked_ids_list", null)));
-                fragment = WebmListFragment.newInstance(ORDER_CREATED_AT, TAG_NAME, likedWebmList);
+                fragment = WebmListFragment.newInstance(ORDER_CREATED_AT, TAG_NAME);
                 break;
         }
 
