@@ -17,8 +17,8 @@ import com.example.aleksejkocergin.randomwebm.dagger.PlayerComponent;
 import com.example.aleksejkocergin.randomwebm.interfaces.WebmData;
 import com.example.aleksejkocergin.randomwebm.util.WebmDetailsFetcher;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
@@ -105,7 +105,7 @@ public class PlayerActivity extends AppCompatActivity implements WebmData{
         player.setPlayWhenReady(true);
 
         // Loading Bar
-        player.addListener(new ExoPlayer.EventListener() {
+        player.addListener(new Player.EventListener() {
             @Override
             public void onTimelineChanged(Timeline timeline, Object manifest) {
 
@@ -150,7 +150,7 @@ public class PlayerActivity extends AppCompatActivity implements WebmData{
 
             @Override
             public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-                if (playbackState == ExoPlayer.STATE_BUFFERING) {
+                if (playbackState == Player.STATE_BUFFERING) {
                     progressBar.setVisibility(View.VISIBLE);
                 } else {
                     progressBar.setVisibility(View.INVISIBLE);
@@ -160,7 +160,7 @@ public class PlayerActivity extends AppCompatActivity implements WebmData{
     }
 
     @Override
-    public void setWebmData(WebmQuery.Data data) {
+    public void render(WebmQuery.Data data) {
         if (data.getWebm() != null) {
             initPlayer(data.getWebm().url());
         }
