@@ -37,7 +37,7 @@ public class WebmDetailsFetcher {
         .subscribeWith(new DisposableObserver<Response<WebmQuery.Data>>() {
             @Override
             public void onNext(Response<WebmQuery.Data> dataResponse) {
-                webmData.setWebmData(dataResponse.data());
+                webmData.render(dataResponse.data());
             }
 
             @Override
