@@ -43,12 +43,12 @@ import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -72,6 +72,7 @@ public class RandomFragment extends Fragment implements WebmData {
     private ToggleVotesUtil toggleVotesUtil;
     private WebmDetailsFetcher webmFetcher;
     private TagsAdapter mTagsAdapter;
+    private Gson gson;
 
     // DI ExoPlayer
     @Inject
@@ -123,6 +124,7 @@ public class RandomFragment extends Fragment implements WebmData {
         mTagsRecycler.setLayoutManager(mLayoutManager);
         toggleVotesUtil = new ToggleVotesUtil();
         webmFetcher = new WebmDetailsFetcher(this);
+        gson = new Gson();
         likedWebmList = new ArrayList<>();
         dislikedWebmList = new ArrayList<>();
         initPlayerComponent();
@@ -161,7 +163,7 @@ public class RandomFragment extends Fragment implements WebmData {
     }
 
     @Override
-    public void setWebmData(WebmQuery.Data data) {
+    public void render(WebmQuery.Data data) {
         final WebmQuery.GetWebm getWebm = data.getWebm();
         if (getWebm != null) {
             hasLike = false;
@@ -216,6 +218,25 @@ public class RandomFragment extends Fragment implements WebmData {
         }
     }
 
+    private void retrieveSharedPreferences() {
+            String[] likedArrPrefs = gson.fromJson(prefs.getString(LIKED_WEBM_ID, null), String[].class);
+            try {
+                likedWebmList.addAll(Arrays.asList(likedArrPrefs));
+            } catch (NullPointerException e) {
+                Log.e("my_exception", "Error: " + e.toString());
+            }
+
+            String[] dislikedArrPrefs = gson.fromJson(prefs.getString(DISLIKED_WEBM_ID, null), String[].class);
+            try {
+                dislikedWebmList.addAll(Arrays.asList(dislikedArrPrefs));
+            } catch (NullPointerException e) {
+                Log.e("my_exception", "Error: " + e.toString());
+            }
+
+            Log.d("retrieveLikePrefs_rand", "" + likedWebmList.size());
+            Log.d("retrieveDislike_rand", "" + dislikedWebmList.size());
+    }
+
     private void toggleLike() {
         SharedPreferences.Editor editor = prefs.edit();
         boolean isLiked = hasLike;
@@ -223,31 +244,28 @@ public class RandomFragment extends Fragment implements WebmData {
 
         if (hasLike) {
             likedWebmList.remove(webmId);
-            Set<String> likedWebm = new HashSet<>(likedWebmList);
-            editor.putStringSet(LIKED_WEBM_ID, likedWebm);
+            editor.putString(LIKED_WEBM_ID, gson.toJson(likedWebmList));
             editor.apply();
             tvLikeCount.setText(String.valueOf(likeCount -= 1));
             hasLike = false;
-            Log.d("like_webm_list", "" + likedWebm.size());
+            Log.d("like_webm_list", "" + likedWebmList.size());
         } else {
             likedWebmList.add(webmId);
-            Set<String> likedWebm = new HashSet<>(likedWebmList);
-            editor.putStringSet(LIKED_WEBM_ID, likedWebm);
+            editor.putString(LIKED_WEBM_ID, gson.toJson(likedWebmList));
             editor.apply();
             tvLikeCount.setText(String.valueOf(likeCount += 1));
             hasLike = true;
-            Log.d("like_webm_list", "" + likedWebm.size());
+            Log.d("like_webm_list", "" + likedWebmList.size());
         }
 
-        if(hasDislike) {
+        if (hasDislike) {
             dislikedWebmList.remove(webmId);
-            Set<String> dislikedWebm = new HashSet<>(dislikedWebmList);
-            editor.putStringSet(DISLIKED_WEBM_ID, dislikedWebm);
+            editor.putString(DISLIKED_WEBM_ID, gson.toJson(dislikedWebmList));
             editor.apply();
             tvDislikeCount.setText(String.valueOf(dislikeCount -= 1));
             hasDislike = false;
             thumbDownButton.setChecked(false);
-            Log.d("dis_webm_list", "" + dislikedWebm.size());
+            Log.d("dis_webm_list", "" + dislikedWebmList.size());
         }
 
         thumbUpButton.setChecked(hasLike);
@@ -261,42 +279,32 @@ public class RandomFragment extends Fragment implements WebmData {
 
         if (hasDislike) {
             dislikedWebmList.remove(webmId);
-            Set<String> dislikedWebm = new HashSet<>(dislikedWebmList);
-            editor.putStringSet(DISLIKED_WEBM_ID, dislikedWebm);
+            editor.putString(DISLIKED_WEBM_ID, gson.toJson(dislikedWebmList));
             editor.apply();
             tvDislikeCount.setText(String.valueOf(dislikeCount -= 1));
             hasDislike = false;
-            Log.d("dis_webm_list", "" + dislikedWebm.size());
+            Log.d("dis_webm_list", "" + dislikedWebmList.size());
         } else {
             dislikedWebmList.add(webmId);
-            Set<String> dislikedWebm = new HashSet<>(dislikedWebmList);
-            editor.putStringSet(DISLIKED_WEBM_ID, dislikedWebm);
+            editor.putString(DISLIKED_WEBM_ID, gson.toJson(dislikedWebmList));
             editor.apply();
             tvDislikeCount.setText(String.valueOf(dislikeCount += 1));
             hasDislike = true;
-            Log.d("dis_webm_list", "" + dislikedWebm.size());
+            Log.d("dis_webm_list_size", "" + dislikedWebmList.size());
         }
 
         if (hasLike) {
             likedWebmList.remove(webmId);
-            Set<String> likedWebm = new HashSet<>(likedWebmList);
-            editor.putStringSet(LIKED_WEBM_ID, likedWebm);
+            editor.putString(LIKED_WEBM_ID, gson.toJson(likedWebmList));
             editor.apply();
             tvLikeCount.setText(String.valueOf(likeCount -= 1));
             hasLike = false;
             thumbUpButton.setChecked(false);
-            Log.d("like_webm_list", "" + likedWebm.size());
+            Log.d("like_webm_list_size", "" + likedWebmList.size());
         }
 
         thumbDownButton.setChecked(hasDislike);
         toggleVotesUtil.toggleDislike(webmId, isLiked, isDisliked);
-    }
-
-    private void retrieveSharedPreferences() {
-        likedWebmList.addAll(prefs.getStringSet(LIKED_WEBM_ID, null));
-        dislikedWebmList.addAll(prefs.getStringSet(DISLIKED_WEBM_ID, null));
-        Log.d("retrieveLikePrefs_rand", "" + likedWebmList);
-        Log.d("retrieveDislike_rand", "" + dislikedWebmList);
     }
 
     private void initPlayerComponent() {
