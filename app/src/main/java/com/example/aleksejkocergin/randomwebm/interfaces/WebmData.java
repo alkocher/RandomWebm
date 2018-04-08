@@ -5,5 +5,5 @@ import com.example.aleksejkocergin.myapplication.WebmQuery;
 
 public interface WebmData {
 
-    void setWebmData(WebmQuery.Data data);
+    void render(WebmQuery.Data data);
 }
