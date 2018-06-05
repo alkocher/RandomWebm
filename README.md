@@ -1,3 +1,4 @@
 # RandomWebm
 My first project Android.
-Used libraries: GraphQL, Exoplayer, Glide, ButterKnife, OkHttp and RxJava.
+
+Used libraries on the project: GraphQL, Exoplayer, Glide, ButterKnife, OkHttp and RxJava.
