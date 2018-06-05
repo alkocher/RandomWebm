@@ -1,5 +1,8 @@
 package com.example.aleksejkocergin.randomwebm.activity;
 
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.app.SearchManager;
 import android.content.Context;
@@ -75,12 +78,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         loadTags();
     }
-
-    /*private boolean isOnline() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        return networkInfo != null && networkInfo.isConnectedOrConnecting();
-    }*/
 
     private List<TagsQuery.GetTag> responseTag(Response<TagsQuery.Data> response) {
         List<TagsQuery.GetTag> tagList = new ArrayList<>();
