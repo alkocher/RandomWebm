@@ -165,4 +165,14 @@ public class PlayerActivity extends AppCompatActivity implements WebmData{
             initPlayer(data.getWebm().url());
         }
     }
+
+    @Override
+    public void showSuccessSnackbar() {
+        // Do nothing
+    }
+
+    @Override
+    public void showErrorSnackbar() {
+        // Do nothing
+    }
 }
