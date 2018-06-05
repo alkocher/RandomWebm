@@ -166,6 +166,7 @@ public class WebmListFragment extends Fragment {
     }
 
     private void fetchWebmList() {
+        errorCheckConnection.setVisibility(View.GONE);
         errorNoResults.setVisibility(View.GONE);
         bottomLayout.setVisibility(View.VISIBLE);
         ApolloCall<WebmListQuery.Data> webmListQuery = WebmApolloClient.getWebmApolloClient()
@@ -186,7 +187,6 @@ public class WebmListFragment extends Fragment {
 
                 @Override
                 public void onError(Throwable e) {
-                    bottomLayout.setVisibility(View.GONE);
                     swipeContainer.setRefreshing(false);
                     errorCheckConnection.setVisibility(View.VISIBLE);
                     Log.e(TAG, e.getMessage(), e);
