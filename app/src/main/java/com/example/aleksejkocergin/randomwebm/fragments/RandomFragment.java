@@ -66,6 +66,7 @@ public class RandomFragment extends Fragment implements WebmData {
     private int dislikeCount;
     private boolean hasLike;
     private boolean hasDislike;
+
     private ArrayList<String> likedWebmList;
     private ArrayList<String> dislikedWebmList;
     private SharedPreferences prefs;
@@ -109,7 +110,6 @@ public class RandomFragment extends Fragment implements WebmData {
     @BindView(R.id.loading_bar)
     ProgressBar progressBar;
 
-
     public static RandomFragment newInstance() {
         return new RandomFragment();
     }
@@ -122,7 +122,7 @@ public class RandomFragment extends Fragment implements WebmData {
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(
                 getContext(), LinearLayoutManager.HORIZONTAL, false);
         mTagsRecycler.setLayoutManager(mLayoutManager);
-        toggleVotesUtil = new ToggleVotesUtil();
+        toggleVotesUtil = new ToggleVotesUtil(this);
         webmFetcher = new WebmDetailsFetcher(this);
         gson = new Gson();
         likedWebmList = new ArrayList<>();
@@ -202,39 +202,49 @@ public class RandomFragment extends Fragment implements WebmData {
         }
     }
 
+    @Override
+    public void showSuccessSnackbar() {
+
+    }
+
+    @Override
+    public void showErrorSnackbar() {
+
+    }
+
     private void checkWebmId() {
         for (int i = 0; i < likedWebmList.size(); ++i) {
             if (likedWebmList.get(i).equals(webmId)) {
-                Log.d("webm_id", "Уже в списке лайков!");
+                Log.d("webm_id", "ID in the list of likes");
                 hasLike = true;
             }
         }
 
         for (int i = 0; i < dislikedWebmList.size(); ++i) {
             if (dislikedWebmList.get(i).equals(webmId)) {
-                Log.d("webm_id", "Уже в списке дизлайков");
+                Log.d("webm_id", "ID in the list of dislikes");
                 hasDislike = true;
             }
         }
     }
 
     private void retrieveSharedPreferences() {
-            String[] likedArrPrefs = gson.fromJson(prefs.getString(LIKED_WEBM_ID, null), String[].class);
+        String[] likedArrPrefs = gson.fromJson(
+                prefs.getString(LIKED_WEBM_ID, null), String[].class);
+        String[] dislikedArrPrefs = gson.fromJson(
+                prefs.getString(DISLIKED_WEBM_ID, null), String[].class);
+
             try {
                 likedWebmList.addAll(Arrays.asList(likedArrPrefs));
             } catch (NullPointerException e) {
                 Log.e("my_exception", "Error: " + e.toString());
             }
 
-            String[] dislikedArrPrefs = gson.fromJson(prefs.getString(DISLIKED_WEBM_ID, null), String[].class);
             try {
                 dislikedWebmList.addAll(Arrays.asList(dislikedArrPrefs));
             } catch (NullPointerException e) {
                 Log.e("my_exception", "Error: " + e.toString());
             }
-
-            Log.d("retrieveLikePrefs_rand", "" + likedWebmList.size());
-            Log.d("retrieveDislike_rand", "" + dislikedWebmList.size());
     }
 
     private void toggleLike() {
