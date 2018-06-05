@@ -5,6 +5,7 @@ import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.rx2.Rx2Apollo;
 import com.example.aleksejkocergin.myapplication.ToggleDislikeMutation;
 import com.example.aleksejkocergin.myapplication.ToggleLikeMutation;
+import com.example.aleksejkocergin.randomwebm.interfaces.WebmData;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -14,6 +15,11 @@ import io.reactivex.schedulers.Schedulers;
 public class ToggleVotesUtil {
 
     private CompositeDisposable mDisposable = new CompositeDisposable();
+    private WebmData webmData;
+
+    public ToggleVotesUtil(WebmData webmData) {
+        this.webmData = webmData;
+    }
 
     public void toggleLike(String webmId, boolean hasLike, boolean hasDislike) {
         ApolloMutationCall<ToggleLikeMutation.Data> likeMutationCall =
@@ -30,12 +36,12 @@ public class ToggleVotesUtil {
 
             @Override
             public void onError(Throwable e) {
-
+                webmData.showErrorSnackbar();
             }
 
             @Override
             public void onComplete() {
-
+                webmData.showSuccessSnackbar();
             }
         }));
     }
@@ -55,12 +61,12 @@ public class ToggleVotesUtil {
 
             @Override
             public void onError(Throwable e) {
-
+                webmData.showErrorSnackbar();
             }
 
             @Override
             public void onComplete() {
-
+                webmData.showSuccessSnackbar();
             }
         }));
     }
