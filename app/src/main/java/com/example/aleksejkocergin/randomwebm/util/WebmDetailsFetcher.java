@@ -41,10 +41,14 @@ public class WebmDetailsFetcher {
             }
 
             @Override
-            public void onError(Throwable e) {}
+            public void onError(Throwable e) {
+                webmData.showErrorSnackbar();
+            }
 
             @Override
-            public void onComplete() {}
+            public void onComplete() {
+            }
         }));
+
     }
 }
