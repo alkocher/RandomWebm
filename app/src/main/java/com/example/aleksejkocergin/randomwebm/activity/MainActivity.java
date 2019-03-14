@@ -52,6 +52,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Handler uiHandler = new Handler(Looper.getMainLooper());
     private ArrayAdapter<String> arrayAdapter;
 
+    // t1
+
+    // t2
+
+    // t3
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
